@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
+const cors = require('cors');  // Добавляем пакет cors
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ const PORT = process.env.PORT || 3000;
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 app.use(bodyParser.json());
+app.use(cors());  // Используем cors
+
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -77,7 +80,7 @@ app.post('/sendMessage', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname,  'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 server.listen(PORT, () => {
