@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Список пользователей, начавших взаимодействие с ботом</title>
+    <title>Чат с ботом</title>
     <!-- Подключение Bootstrap CSS (можно заменить на ваш собственный стиль) -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Подключение стилей для страницы -->
@@ -14,7 +14,7 @@
             background-color: #f8f9fa;
             padding-top: 20px;
         }
-        .container {
+        .container-fluid {
             margin-top: 20px;
         }
         .user-list-container {
@@ -22,12 +22,35 @@
             border: 1px solid #ced4da;
             padding: 15px;
             margin-bottom: 20px;
+            height: calc(100vh - 60px); /* Высота контейнера, чтобы занимал всю доступную высоту */
+            overflow-y: auto; /* Добавление скролла при overflow */
+        }
+        .chat-container {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: calc(100vh - 60px); /* Высота контейнера, чтобы занимал всю доступную высоту */
+            overflow-y: auto; /* Добавление скролла при overflow */
+        }
+        .actions-container {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: calc(100vh - 60px); /* Высота контейнера, чтобы занимал всю доступную высоту */
+            overflow-y: auto; /* Добавление скролла при overflow */
         }
         .message {
             margin-bottom: 10px;
             padding: 5px 10px;
-            background-color: #f0f0f0;
             border-radius: 5px;
+        }
+        .user-message {
+            background-color: #cce5ff; /* Цвет фона для сообщений пользователя */
+        }
+        .bot-message {
+            background-color: #f0f0f0; /* Цвет фона для сообщений от бота (оператора) */
         }
         .reply-form {
             margin-top: 20px;
@@ -35,12 +58,44 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h3>Список пользователей, начавших взаимодействие с ботом</h3>
-        <div class="user-list-container">
-            <ul class="list-group" id="userList">
-                <!-- Сюда будут добавляться элементы списка пользователей -->
-            </ul>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Список пользователей (слева) -->
+            <div class="col-sm-3">
+                <h3>Список пользователей</h3>
+                <div class="user-list-container">
+                    <ul class="list-group" id="userList">
+                        <!-- Сюда будут добавляться элементы списка пользователей -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Чат (по центру) -->
+            <div class="col-sm-6">
+                <h3>История чата выбранного пользователя</h3>
+                <div class="chat-container" id="chatMessages">
+                    <!-- Сюда будут добавляться сообщения из истории чата -->
+                </div>
+
+                <!-- Форма для ответа на сообщение -->
+                <div class="reply-form">
+                    <form id="replyForm">
+                        <div class="form-group">
+                            <label for="messageText">Ответить на сообщение:</label>
+                            <textarea class="form-control" id="messageText" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Список действий (справа) -->
+            <div class="col-sm-3">
+                <h3>Список действий</h3>
+                <div class="actions-container">
+                    <!-- Здесь может быть список действий для оператора -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -64,7 +119,8 @@
                 $('#chatMessages').empty();
                 history.forEach(function(message) {
                     const formattedDate = new Date(message.date).toLocaleString();
-                    $('#chatMessages').append('<div class="message"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
+                    const messageClass = message.sender === 'user' ? 'user-message' : 'bot-message';
+                    $('#chatMessages').append('<div class="message ' + messageClass + '"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
                 });
             }
 
@@ -77,7 +133,8 @@
                 const message = data.message;
                 if ($('#userList li.active').data('user-id') === userId) {
                     const formattedDate = new Date(message.date).toLocaleString();
-                    $('#chatMessages').append('<div class="message"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
+                    const messageClass = message.sender === 'user' ? 'user-message' : 'bot-message';
+                    $('#chatMessages').append('<div class="message ' + messageClass + '"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
                 }
             });
 
@@ -129,7 +186,7 @@
                     $('#messageText').val('');
                     // Опционально: добавить новое сообщение в интерфейс
                     const formattedDate = new Date().toLocaleString();
-                    $('#chatMessages').append('<div class="message"><strong>' + formattedDate + '</strong>: ' + messageText + '</div>');
+                    $('#chatMessages').append('<div class="message user-message"><strong>' + formattedDate + '</strong>: ' + messageText + '</div>');
                 }
             });
 
@@ -150,23 +207,5 @@
             });
         });
     </script>
-
-    <div class="container">
-        <h3>История чата выбранного пользователя</h3>
-        <div id="chatMessages">
-            <!-- Сюда будут добавляться сообщения из истории чата -->
-        </div>
-    </div>
-
-    <!-- Форма для ответа на сообщение -->
-    <div class="container reply-form">
-        <form id="replyForm">
-            <div class="form-group">
-                <label for="messageText">Ответить на сообщение:</label>
-                <textarea class="form-control" id="messageText" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Отправить</button>
-        </form>
-    </div>
 </body>
 </html>
