@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const socket = io();
+    const socket = io('https://text-chat.onrender.com/'); // Замените YOUR_RENDER_SERVER_URL на ваш фактический URL
 
     function updateUsersList(users) {
         $('#userList').empty();
@@ -44,7 +44,7 @@ $(document).ready(function() {
 
     function loadChatHistory(userId) {
         $.ajax({
-            url: '/chatHistory/' + userId,
+            url: 'https://text-chat.onrender.com/chatHistory/' + userId,
             method: 'GET',
             success: function(data) {
                 updateChatHistory(data.chatHistory);
@@ -61,7 +61,7 @@ $(document).ready(function() {
         const messageText = $('#messageText').val().trim();
         if (userId && messageText) {
             $.ajax({
-                url: '/sendMessage',
+                url: 'https://text-chat.onrender.com/sendMessage',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ userId: userId, text: messageText }),
@@ -77,7 +77,7 @@ $(document).ready(function() {
     });
 
     $.ajax({
-        url: '/startedUsers',
+        url: 'https://text-chat.onrender.com/startedUsers',
         method: 'GET',
         success: function(data) {
             updateUsersList(data.startedUsers);
