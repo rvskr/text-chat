@@ -39,11 +39,36 @@ $(document).ready(function() {
         }
     });
 
+    socket.on('chatEnded', function(userId) {
+        alert('Чат с пользователем ' + userId + ' завершен.');
+    });
+
+    socket.on('chatCleared', function(userId) {
+        $('#chatMessages').empty();
+    });
+
+    socket.on('userRenamed', function(data) {
+        const oldUserId = data.oldUserId;
+        const newUserId = data.newUserId;
+        $('#userList li[data-user-id="' + oldUserId + '"]').data('user-id', newUserId).text(newUserId);
+        if ($('#userList li.active').data('user-id') === oldUserId) {
+            $('#userList li.active').data('user-id', newUserId).text(newUserId);
+        }
+    });
+
     $(document).on('click', '#userList li', function() {
         const userId = $(this).data('user-id');
         $('#userList li').removeClass('active');
         $(this).addClass('active');
         loadChatHistory(userId);
+    });
+
+    $(document).on('dblclick', '#userList li', function() {
+        const userId = $(this).data('user-id');
+        const newUserId = prompt('Введите новое имя пользователя:', userId);
+        if (newUserId && newUserId !== userId) {
+            renameUser(userId, newUserId);
+        }
     });
 
     function loadChatHistory(userId) {
@@ -55,6 +80,25 @@ $(document).ready(function() {
             },
             error: function(err) {
                 console.error('Error loading chat history:', err);
+            }
+        });
+    }
+
+    function renameUser(oldUserId, newUserId) {
+        $.ajax({
+            url: serverUrl + '/renameUser',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ oldUserId: oldUserId, newUserId: newUserId }),
+            success: function(response) {
+                console.log('User renamed successfully');
+                $('#userList li[data-user-id="' + oldUserId + '"]').data('user-id', newUserId).text(newUserId);
+                if ($('#userList li.active').data('user-id') === oldUserId) {
+                    $('#userList li.active').data('user-id', newUserId).text(newUserId);
+                }
+            },
+            error: function(err) {
+                console.error('Error renaming user:', err);
             }
         });
     }
@@ -75,6 +119,42 @@ $(document).ready(function() {
                 },
                 error: function(err) {
                     console.error('Error sending message:', err);
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#endChat', function() {
+        const userId = $('#userList li.active').data('user-id');
+        if (userId) {
+            $.ajax({
+                url: serverUrl + '/endChat',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId: userId }),
+                success: function(response) {
+                    console.log('Chat ended successfully');
+                },
+                error: function(err) {
+                    console.error('Error ending chat:', err);
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#clearChat', function() {
+        const userId = $('#userList li.active').data('user-id');
+        if (userId) {
+            $.ajax({
+                url: serverUrl + '/clearChat',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId: userId }),
+                success: function(response) {
+                    console.log('Chat cleared successfully');
+                },
+                error: function(err) {
+                    console.error('Error clearing chat:', err);
                 }
             });
         }

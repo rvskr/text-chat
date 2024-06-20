@@ -80,6 +80,58 @@ app.post('/sendMessage', (req, res) => {
         });
 });
 
+app.post('/endChat', (req, res) => {
+    const { userId } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'Invalid request body' });
+    }
+
+    bot.telegram.sendMessage(userId, 'Чат завершен.')
+        .then(() => {
+            io.emit('chatEnded', userId);
+            res.json({ success: true });
+        })
+        .catch((err) => {
+            console.error('Error ending chat:', err);
+            res.status(500).json({ error: 'Failed to end chat' });
+        });
+});
+
+app.post('/clearChat', (req, res) => {
+    const { userId } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'Invalid request body' });
+    }
+
+    chatHistory[userId] = [];
+    io.emit('chatCleared', userId);
+    res.json({ success: true });
+});
+
+app.post('/renameUser', (req, res) => {
+    const { oldUserId, newUserId } = req.body;
+
+    if (!oldUserId || !newUserId) {
+        return res.status(400).json({ error: 'Invalid request body' });
+    }
+
+    if (startedUsers.includes(oldUserId)) {
+        startedUsers = startedUsers.map(userId => userId === oldUserId ? newUserId : userId);
+
+        if (chatHistory[oldUserId]) {
+            chatHistory[newUserId] = chatHistory[oldUserId];
+            delete chatHistory[oldUserId];
+        }
+
+        io.emit('userRenamed', { oldUserId, newUserId });
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ error: 'User not found' });
+    }
+});
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));  // Изменено для правильного пути к файлу
 });
