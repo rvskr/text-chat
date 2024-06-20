@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список пользователей, начавших взаимодействие с ботом</title>
+    <!-- Подключение Bootstrap CSS (можно заменить на ваш собственный стиль) -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Подключение стилей для страницы -->
+    <style>
+        /* Основные стили */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .user-list-container {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .reply-form {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Список пользователей, начавших взаимодействие с ботом</h3>
+        <div class="user-list-container">
+            <ul class="list-group" id="userList">
+                <!-- Сюда будут добавляться элементы списка пользователей -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Подключение socket.io-client -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Подключение jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- JavaScript для загрузки списка пользователей и истории чата -->
+    <script>
+        $(document).ready(function() {
+            const socket = io();
+
+            function updateUsersList(users) {
+                $('#userList').empty();
+                users.forEach(function(userId) {
+                    $('#userList').append('<li class="list-group-item" data-user-id="' + userId + '">' + userId + '</li>');
+                });
+            }
+
+            function updateChatHistory(history) {
+                $('#chatMessages').empty();
+                history.forEach(function(message) {
+                    const formattedDate = new Date(message.date).toLocaleString();
+                    $('#chatMessages').append('<div class="message"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
+                });
+            }
+
+            socket.on('newUser', function(userId) {
+                updateUsersList([...$('#userList li').map(function() { return $(this).data('user-id'); }), userId]);
+            });
+
+            socket.on('newMessage', function(data) {
+                const userId = data.userId;
+                const message = data.message;
+                if ($('#userList li.active').data('user-id') === userId) {
+                    const formattedDate = new Date(message.date).toLocaleString();
+                    $('#chatMessages').append('<div class="message"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
+                }
+            });
+
+            $(document).on('click', '#userList li', function() {
+                const userId = $(this).data('user-id');
+                $('#userList li').removeClass('active');
+                $(this).addClass('active');
+                loadChatHistory(userId);
+            });
+
+            function loadChatHistory(userId) {
+                $.ajax({
+                    url: '/chatHistory/' + userId,
+                    method: 'GET',
+                    success: function(data) {
+                        updateChatHistory(data.chatHistory);
+                    },
+                    error: function(err) {
+                        console.error('Error loading chat history:', err);
+                    }
+                });
+            }
+
+            // Функция для отправки сообщения пользователю через бота
+            function sendMessage(userId, text) {
+                $.ajax({
+                    url: '/sendMessage',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ userId: userId, text: text }),
+                    success: function(response) {
+                        console.log('Message sent successfully');
+                        // Добавить обновление интерфейса, если нужно
+                    },
+                    error: function(err) {
+                        console.error('Error sending message:', err);
+                    }
+                });
+            }
+
+            // Обработчик отправки формы ответа на сообщение
+            $(document).on('submit', '#replyForm', function(event) {
+                event.preventDefault();
+                const userId = $('#userList li.active').data('user-id');
+                const messageText = $('#messageText').val().trim();
+                if (userId && messageText) {
+                    sendMessage(userId, messageText);
+                    // Очистить поле ввода после отправки
+                    $('#messageText').val('');
+                    // Опционально: добавить новое сообщение в интерфейс
+                    const formattedDate = new Date().toLocaleString();
+                    $('#chatMessages').append('<div class="message"><strong>' + formattedDate + '</strong>: ' + messageText + '</div>');
+                }
+            });
+
+            $.ajax({
+                url: '/startedUsers',
+                method: 'GET',
+                success: function(data) {
+                    updateUsersList(data.startedUsers);
+                    if (data.startedUsers.length > 0) {
+                        const firstUserId = data.startedUsers[0];
+                        $('#userList li[data-user-id="' + firstUserId + '"]').addClass('active');
+                        loadChatHistory(firstUserId);
+                    }
+                },
+                error: function(err) {
+                    console.error('Error loading started users:', err);
+                }
+            });
+        });
+    </script>
+
+    <div class="container">
+        <h3>История чата выбранного пользователя</h3>
+        <div id="chatMessages">
+            <!-- Сюда будут добавляться сообщения из истории чата -->
+        </div>
+    </div>
+
+    <!-- Форма для ответа на сообщение -->
+    <div class="container reply-form">
+        <form id="replyForm">
+            <div class="form-group">
+                <label for="messageText">Ответить на сообщение:</label>
+                <textarea class="form-control" id="messageText" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    </div>
+</body>
+</html>

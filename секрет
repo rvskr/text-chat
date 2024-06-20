@@ -1,0 +1,33 @@
+api_key = 'NJPMk5ppyCAhRHdBsgr0getH7o0Op9oYQt0YaLQKBFay8TRELflneNdnh6UeSq66'
+api_secret = '9fnFzfrkdFJ6C3KQTCc73DNX2o44ffZIBwdKRt0zm1C31G0RAFscmbjr3b6k72g1'
+
+
+telega 
+const telegramBotToken = "6923582894:AAHuYGsJuKLsKCcVccnN8kbsdRzC8vTiFVE";
+const chatId = "558625598"; 
+
+const yourBotId = "my2gissitebot";
+const telegramBotToken = "6923582894:AAHuYGsJuKLsKCcVccnN8kbsdRzC8vTiFVE"; // Ваш токен бота Telegram
+const chatId = '558625598';
+curl -X POST "https://api.telegram.org/bot6923582894:AAHuYGsJuKLsKCcVccnN8kbsdRzC8vTiFVE/sendMessage" -d "chat_id=558625598&text=Test_message"
+class FirebaseManager {
+    constructor() {
+        // Инициализация Firebase
+        firebase.initializeApp({
+            apiKey: "AIzaSyC04K2xwoat05QTXxJeb9f-hYXcjUBae0A",
+            authDomain: "simple-blog-ayojxo.firebaseapp.com",
+            projectId: "simple-blog-ayojxo",
+            storageBucket: "simple-blog-ayojxo.appspot.com",
+            messagingSenderId: "504207144426",
+            appId: "1:504207144426:web:e9be92cff23c73b5056e93",
+            databaseURL: "https://simple-blog-ayojxo-default-rtdb.europe-west1.firebasedatabase.app" 
+        });
+
+        this.auth = firebase.auth();
+        this.database = firebase.database();
+    }
+
+<script src="script.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
