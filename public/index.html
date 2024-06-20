@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Чат с ботом</title>
-    <!-- Подключение Bootstrap CSS (можно заменить на ваш собственный стиль) -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Подключение стилей для страницы -->
     <style>
-        /* Основные стили */
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
@@ -17,40 +14,25 @@
         .container-fluid {
             margin-top: 20px;
         }
-        .user-list-container {
+        .user-list-container, .chat-container, .actions-container {
             background-color: #ffffff;
             border: 1px solid #ced4da;
             padding: 15px;
             margin-bottom: 20px;
-            height: calc(100vh - 60px); /* Высота контейнера, чтобы занимал всю доступную высоту */
-            overflow-y: auto; /* Добавление скролла при overflow */
-        }
-        .chat-container {
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-            padding: 15px;
-            margin-bottom: 20px;
-            height: calc(100vh - 60px); /* Высота контейнера, чтобы занимал всю доступную высоту */
-            overflow-y: auto; /* Добавление скролла при overflow */
-        }
-        .actions-container {
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-            padding: 15px;
-            margin-bottom: 20px;
-            height: calc(100vh - 60px); /* Высота контейнера, чтобы занимал всю доступную высоту */
-            overflow-y: auto; /* Добавление скролла при overflow */
+            height: calc(100vh - 60px);
+            overflow-y: auto;
         }
         .message {
             margin-bottom: 10px;
             padding: 5px 10px;
             border-radius: 5px;
+            word-wrap: break-word; /* Автоматический перенос слов */
         }
         .user-message {
-            background-color: #cce5ff; /* Цвет фона для сообщений пользователя */
+            background-color: #cce5ff;
         }
         .bot-message {
-            background-color: #f0f0f0; /* Цвет фона для сообщений от бота (оператора) */
+            background-color: #f0f0f0;
         }
         .reply-form {
             margin-top: 20px;
@@ -60,24 +42,17 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Список пользователей (слева) -->
             <div class="col-sm-3">
                 <h3>Список пользователей</h3>
                 <div class="user-list-container">
                     <ul class="list-group" id="userList">
-                        <!-- Сюда будут добавляться элементы списка пользователей -->
                     </ul>
                 </div>
             </div>
-
-            <!-- Чат (по центру) -->
             <div class="col-sm-6">
                 <h3>История чата выбранного пользователя</h3>
                 <div class="chat-container" id="chatMessages">
-                    <!-- Сюда будут добавляться сообщения из истории чата -->
                 </div>
-
-                <!-- Форма для ответа на сообщение -->
                 <div class="reply-form">
                     <form id="replyForm">
                         <div class="form-group">
@@ -88,22 +63,15 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Список действий (справа) -->
             <div class="col-sm-3">
                 <h3>Список действий</h3>
                 <div class="actions-container">
-                    <!-- Здесь может быть список действий для оператора -->
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Подключение socket.io-client -->
     <script src="/socket.io/socket.io.js"></script>
-    <!-- Подключение jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <!-- JavaScript для загрузки списка пользователей и истории чата -->
     <script>
         $(document).ready(function() {
             const socket = io();
@@ -120,7 +88,9 @@
                 history.forEach(function(message) {
                     const formattedDate = new Date(message.date).toLocaleString();
                     const messageClass = message.sender === 'user' ? 'user-message' : 'bot-message';
-                    $('#chatMessages').append('<div class="message ' + messageClass + '"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
+                    const messageText = $('<div>').text(message.text).html(); // Escape HTML entities
+
+                    $('#chatMessages').append('<div class="message ' + messageClass + '"><strong>' + formattedDate + '</strong>: ' + messageText + '</div>');
                 });
             }
 
@@ -134,7 +104,9 @@
                 if ($('#userList li.active').data('user-id') === userId) {
                     const formattedDate = new Date(message.date).toLocaleString();
                     const messageClass = message.sender === 'user' ? 'user-message' : 'bot-message';
-                    $('#chatMessages').append('<div class="message ' + messageClass + '"><strong>' + formattedDate + '</strong>: ' + message.text + '</div>');
+                    const messageText = $('<div>').text(message.text).html(); // Escape HTML entities
+
+                    $('#chatMessages').append('<div class="message ' + messageClass + '"><strong>' + formattedDate + '</strong>: ' + messageText + '</div>');
                 }
             });
 
@@ -158,35 +130,24 @@
                 });
             }
 
-            // Функция для отправки сообщения пользователю через бота
-            function sendMessage(userId, text) {
-                $.ajax({
-                    url: '/sendMessage',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ userId: userId, text: text }),
-                    success: function(response) {
-                        console.log('Message sent successfully');
-                        // Добавить обновление интерфейса, если нужно
-                    },
-                    error: function(err) {
-                        console.error('Error sending message:', err);
-                    }
-                });
-            }
-
-            // Обработчик отправки формы ответа на сообщение
             $(document).on('submit', '#replyForm', function(event) {
                 event.preventDefault();
                 const userId = $('#userList li.active').data('user-id');
                 const messageText = $('#messageText').val().trim();
                 if (userId && messageText) {
-                    sendMessage(userId, messageText);
-                    // Очистить поле ввода после отправки
-                    $('#messageText').val('');
-                    // Опционально: добавить новое сообщение в интерфейс
-                    const formattedDate = new Date().toLocaleString();
-                    $('#chatMessages').append('<div class="message user-message"><strong>' + formattedDate + '</strong>: ' + messageText + '</div>');
+                    $.ajax({
+                        url: '/sendMessage',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ userId: userId, text: messageText }),
+                        success: function(response) {
+                            console.log('Message sent successfully');
+                            $('#messageText').val(''); // Очищаем поле ввода
+                        },
+                        error: function(err) {
+                            console.error('Error sending message:', err);
+                        }
+                    });
                 }
             });
 

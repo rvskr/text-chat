@@ -30,7 +30,7 @@ bot.start((ctx) => {
 
 bot.on('text', (ctx) => {
     const userId = ctx.from.id;
-    const message = { text: ctx.message.text, date: new Date() };
+    const message = { text: ctx.message.text, date: new Date(), sender: 'user' };
 
     if (!chatHistory[userId]) {
         chatHistory[userId] = [];
@@ -59,6 +59,15 @@ app.post('/sendMessage', (req, res) => {
 
     bot.telegram.sendMessage(userId, text)
         .then(() => {
+            const message = { text: text, date: new Date(), sender: 'operator' };
+
+            if (!chatHistory[userId]) {
+                chatHistory[userId] = [];
+            }
+
+            chatHistory[userId].push(message);
+            io.emit('newMessage', { userId, message });
+
             res.json({ success: true });
         })
         .catch((err) => {
