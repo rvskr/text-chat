@@ -4,6 +4,7 @@ const { Telegraf } = require('telegraf');
 const dotenv = require('dotenv');
 const path = require('path');
 const http = require('http');
+const https = require('https'); // Добавлено для работы с https
 const socketIo = require('socket.io');
 const cors = require('cors');
 
@@ -127,43 +128,30 @@ app.get('/', (req, res) => {
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 
-    // Установка интервала для выполнения задачи
     const interval = 15 * 60 * 1000; // 15 минут в миллисекундах
 
-    if (process.env.RENDER) {
-        // Если мы на render.com, используем публичный URL приложения на render.com
-        const PUBLIC_URL = 'https://text-chat.onrender.com/'; // Замените на реальный публичный URL вашего приложения на render.com
-        setInterval(() => {
-            const url = `${PUBLIC_URL}/startedUsers`;
-            http.get(url, (resp) => {
-                let data = '';
-                resp.on('data', (chunk) => {
-                    data += chunk;
-                });
-                resp.on('end', () => {
-                    console.log('Scheduled task executed successfully');
-                });
-            }).on('error', (err) => {
-                console.error('Error executing scheduled task:', err);
+    const makeRequest = (url) => {
+        const protocol = url.startsWith('https') ? https : http;
+        protocol.get(url, (resp) => {
+            let data = '';
+            resp.on('data', (chunk) => {
+                data += chunk;
             });
-        }, interval);
-    } else {
-        // Иначе, если мы локально, используем localhost
-        setInterval(() => {
-            const url = `http://localhost:${PORT}/startedUsers`;
-            http.get(url, (resp) => {
-                let data = '';
-                resp.on('data', (chunk) => {
-                    data += chunk;
-                });
-                resp.on('end', () => {
-                    console.log('Scheduled task executed successfully');
-                });
-            }).on('error', (err) => {
-                console.error('Error executing scheduled task:', err);
+            resp.on('end', () => {
+                console.log('Scheduled task executed successfully');
             });
-        }, interval);
-    }
+        }).on('error', (err) => {
+            console.error('Error executing scheduled task:', err);
+        });
+    };
+
+    const PUBLIC_URL = process.env.RENDER
+        ? 'https://text-chat.onrender.com/' // Замените на реальный публичный URL вашего приложения на render.com
+        : `http://localhost:${PORT}/startedUsers`;
+
+    setInterval(() => {
+        makeRequest(PUBLIC_URL);
+    }, interval);
 });
 
 bot.launch().then(() => {
