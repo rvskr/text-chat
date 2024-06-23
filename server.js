@@ -34,7 +34,17 @@ bot.start((ctx) => {
 
 bot.on('text', (ctx) => {
     const userId = ctx.from.id;
-    const message = { text: ctx.message.text, date: new Date(), sender: 'user' };
+    const messageText = ctx.message.text;
+
+    // Проверяем, начал ли пользователь чат
+    if (!startedUsers.includes(userId)) {
+        startedUsers.push(userId);
+        io.emit('newUser', userId);
+        ctx.reply('Добро пожаловать! Чем могу помочь?');
+    }
+
+    // Обрабатываем сообщение пользователя
+    const message = { text: messageText, date: new Date(), sender: 'user' };
 
     if (!chatHistory[userId]) {
         chatHistory[userId] = [];
@@ -43,6 +53,7 @@ bot.on('text', (ctx) => {
     chatHistory[userId].push(message);
     io.emit('newMessage', { userId, message });
 });
+
 
 app.get('/startedUsers', (req, res) => {
     res.json({ startedUsers });
@@ -89,6 +100,8 @@ app.post('/endChat', (req, res) => {
 
     bot.telegram.sendMessage(userId, 'Чат завершен.')
         .then(() => {
+            startedUsers = startedUsers.filter(id => id !== userId); // Удаляем пользователя из списка активных
+            delete chatHistory[userId]; // Очищаем историю чата пользователя
             io.emit('chatEnded', userId);
             res.json({ success: true });
         })
@@ -105,32 +118,11 @@ app.post('/clearChat', (req, res) => {
         return res.status(400).json({ error: 'Invalid request body' });
     }
 
-    chatHistory[userId] = [];
+    chatHistory[userId] = []; // Очищаем историю чата пользователя
     io.emit('chatCleared', userId);
     res.json({ success: true });
 });
 
-app.post('/renameUser', (req, res) => {
-    const { oldUserId, newUserId } = req.body;
-
-    if (!oldUserId || !newUserId) {
-        return res.status(400).json({ error: 'Invalid request body' });
-    }
-
-    if (startedUsers.includes(oldUserId)) {
-        startedUsers = startedUsers.map(userId => userId === oldUserId ? newUserId : userId);
-
-        if (chatHistory[oldUserId]) {
-            chatHistory[newUserId] = chatHistory[oldUserId];
-            delete chatHistory[oldUserId];
-        }
-
-        io.emit('userRenamed', { oldUserId, newUserId });
-        res.json({ success: true });
-    } else {
-        res.status(400).json({ error: 'User not found' });
-    }
-});
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));  // Изменено для правильного пути к файлу
