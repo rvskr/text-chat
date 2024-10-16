@@ -1,0 +1,175 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #181a1b; /* Темный фон */
+    color: #e0e0e0; /* Светлый цвет текста */
+    padding-top: 20px;
+}
+.container-fluid {
+    margin-top: 20px;
+    padding: 0 15px;
+}
+.user-list-container, .chat-container {
+    background-color: #242526; /* Темный фон контейнеров */
+    border: 1px solid #444;
+    padding: 15px;
+    margin-bottom: 20px;
+    height: calc(65vh - 80px);
+    overflow-y: auto;
+}
+.message {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    word-wrap: break-word;
+    color: #e0e0e0; /* Цвет текста для сообщений */
+}
+.user-message {
+    background-color: #3a3b3c; /* Темно-синий для сообщений пользователя */
+    color: #d1e7ff; /* Светлый текст для сообщений пользователя */
+}
+.bot-message {
+    background-color: #343a40; /* Темно-серый для сообщений бота */
+    color: #f8f9fa; /* Светлый текст для сообщений бота */
+}
+.reply-form {
+    margin-top: 20px;
+    background-color: #242526; /* Темный фон формы ответа */
+    border: 1px solid #444;
+    padding: 15px;
+}
+.actions-container {
+    background-color: #242526; /* Темный фон для контейнера действий */
+    border: 1px solid #444;
+    padding: 15px;
+    margin-top: 20px;
+}
+.reply-form textarea {
+    background-color: #343a40; /* Темный фон для текстового поля */
+    color: #f8f9fa; /* Светлый текст */
+    border: 1px solid #555; /* Темные рамки */
+    resize: none;
+}
+
+.reply-form textarea:focus {
+    background-color: #343a40; /* Оставляем темный фон при фокусе */
+    color: #f8f9fa; /* Светлый текст при фокусе */
+    border-color: #007bff; /* Синий цвет рамки при фокусе */
+    outline: none; /* Убираем стандартную обводку */
+}
+
+.reply-form textarea::placeholder {
+    color: #bbbbbb; /* Светлый цвет для placeholder */
+}
+
+button.btn {
+    background-color: #007bff; /* Синий цвет для кнопок */
+    color: #ffffff;
+    border: none;
+}
+button.btn:hover {
+    background-color: #0056b3; /* Более темный синий при наведении */
+}
+.actions-container button {
+    background-color: #dc3545; /* Красный цвет для кнопок действий */
+    color: #ffffff;
+    border: none;
+}
+.actions-container button:hover {
+    background-color: #a71d2a; /* Темнее при наведении */
+}
+@media (max-width: 992px) { /* Планшеты и мобильные устройства */
+    .user-list-container, .chat-container, .actions-container {
+        margin-top: 10px;
+        padding: 10px;
+    }
+    .message {
+        padding: 8px;
+    }
+    .reply-form {
+        margin-top: 10px;
+    }
+    .actions-container button {
+        margin-bottom: 5px;
+    }
+}
+@media (max-width: 576px) { /* Мобильные устройства */
+    .user-list-container, .chat-container, .actions-container {
+        margin-top: 5px;
+        padding: 5px;
+    }
+    .message {
+        padding: 8px;
+    }
+    .reply-form {
+        margin-top: 5px;
+    }
+    .actions-container button {
+        margin-bottom: 3px;
+    }
+}
+.user-list-container {
+    background-color: #343a40; /* Темный фон для контейнера списка пользователей */
+    border: 1px solid #555;
+    padding: 15px;
+    margin-bottom: 20px;
+    height: calc(65vh - 80px); /* Высота контейнера */
+    overflow-y: auto; /* Разрешаем вертикальную прокрутку */
+}
+
+.user-list-container .list-group-item {
+    background-color: #343a40; /* Темный фон для всех элементов списка */
+    color: #f8f9fa; /* Светлый текст */
+    border: none; /* Убираем стандартные рамки */
+}
+
+.user-list-container .list-group-item:hover {
+    background-color: #495057; /* Светлее при наведении */
+}
+
+.user-list-container .list-group-item.active {
+    background-color: #007bff; /* Синий фон для активного элемента */
+    color: #fff; /* Белый текст для активного элемента */
+}
+.new-message-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #ff4757; /* Красный цвет для индикатора */
+    border-radius: 50%;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+@media (max-width: 576px) {
+    #chatHistoryTitle {
+        display: none; /* Скрываем заголовок на мобильных устройствах */
+    }
+    .user-list-container {
+        display: none; /* Скрываем список пользователей по умолчанию на мобильных устройствах */
+    }
+
+    .user-list-container.active {
+        display: block; /* Показываем список при нажатии */
+        transition: max-height 0.3s ease-in-out; /* Плавное разворачивание */
+    }
+
+    .toggle-user-list {
+        background-color: #007bff;
+        color: #fff;
+        text-align: center;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .selected-user {
+        background-color: #242526;
+        color: #f8f9fa;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #444;
+        margin-bottom: 10px;
+    }
+}
+

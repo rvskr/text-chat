@@ -5,96 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Чат с ботом</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            padding-top: 20px;
-        }
-        .container-fluid {
-            margin-top: 20px;
-            padding: 0 15px; /* Добавим отступы по бокам для контейнера */
-        }
-        .user-list-container, .chat-container {
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-            padding: 15px;
-            margin-bottom: 20px;
-            height: calc(65vh - 80px); /* Высота контейнеров равна высоте видимой части экрана минус отступы сверху и снизу */
-            overflow-y: auto; /* Разрешаем вертикальную прокрутку для контейнера чата */
-        }
-        .message {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            word-wrap: break-word;
-        }
-        .user-message {
-            background-color: #cce5ff;
-        }
-        .bot-message {
-            background-color: #f0f0f0;
-        }
-        .reply-form {
-            margin-top: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-            padding: 15px;
-        }
-        .actions-container {
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-            padding: 15px;
-            margin-top: 20px;
-        }
-        .reply-form textarea {
-            resize: none; /* Запрещаем изменение размера текстового поля */
-        }
-        @media (max-width: 992px) {  /* Планшеты и мобильные устройства */
-            .user-list-container, .chat-container, .actions-container {
-                margin-top: 10px;
-                padding: 10px;
-            }
-            .message {
-                padding: 8px;
-            }
-            .reply-form {
-                margin-top: 10px;
-            }
-            .actions-container button {
-                margin-bottom: 5px;
-            }
-        }
-        @media (max-width: 576px) {  /* Мобильные устройства */
-            .user-list-container, .chat-container, .actions-container {
-                margin-top: 5px;
-                padding: 5px;
-            }
-            .message {
-                padding: 8px;
-            }
-            .reply-form {
-                margin-top: 5px;
-            }
-            .actions-container button {
-                margin-bottom: 3px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="https://t.me/logmyapplight_bot">Ссылка на бота для тестов</a>
-                <h3>Список пользователей</h3>
+                <div class="toggle-user-list d-sm-block d-md-none d-lg-none">Список пользователей</div> <!-- Кликабельный заголовок -->
+                
+                <div class="selected-user d-sm-block d-md-none d-lg-none">Пользователь: <span id="selectedUser">Не выбран</span></div> <!-- Отображение выбранного пользователя в моб версии -->
+                
                 <div class="user-list-container">
                     <ul class="list-group" id="userList">
                     </ul>
                 </div>
-            </div>
+            </div>      
+            
             <div class="col-lg-6 col-md-8 col-sm-6">
-                <h3>История чата выбранного пользователя</h3>
+                <h3 id="chatHistoryTitle">История чата выбранного пользователя</h3>
                 <div class="chat-container" id="chatMessages">
                     <!-- Примеры сообщений (для демонстрации) -->
                     <div class="message user-message">Пример сообщения от пользователя</div>
